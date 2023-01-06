@@ -37,3 +37,7 @@ export function getItem(
       label,
     } as MenuItem;
   }
+
+export type RemoveEntityFn = (id: number, callback: () => void) => void;
+
+export type FetchDataFn = () => void;

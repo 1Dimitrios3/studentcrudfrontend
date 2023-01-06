@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Breadcrumb, 
   Layout, 
@@ -7,12 +6,13 @@ import {
 } from 'antd';
 import { TeamOutlined } from '@ant-design/icons';
 import RenderTable from './RenderTable';
-import { columns } from './TableColumns';
-import { getAllStudents } from './service';
+import { renderStudentColumns } from './TableColumns';
+import { deleteStudent, getAllStudents } from './service';
 import { Student, MenuItem, getItem } from './types';
 import './App.css';
 import Sider from 'antd/es/layout/Sider';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
+import { successNotification } from './Notification';
 
 const items: MenuItem[] = [
   getItem('Users', '1', <TeamOutlined />),
@@ -29,11 +29,19 @@ function App() {
   const fetchStudents = () => {
     setIsFetching(true);
     getAllStudents()
-    .then(res => res.json())
-    .then(data => {
-      setStudents(data)
-      setIsFetching(false);
-    });
+      .then(res => res.json())
+      .then(data => {
+        setStudents(data)
+        setIsFetching(false);
+      });
+  }
+
+  const removeStudent = (studentId: number, callback: () => void) => {
+    deleteStudent(studentId)
+      .then(() => {
+        successNotification("Student deleted", `Student with id: ${studentId} was successfully deleted`);
+        callback();
+      });
   }
 
       useEffect(() => {
@@ -54,7 +62,15 @@ function App() {
           <Breadcrumb.Item>List</Breadcrumb.Item>
         </Breadcrumb>
         <div style={{ padding: 24, minHeight: 360, background: backGroundColor }}>
-          <RenderTable data={students} columns={columns} title='Students' isFetching={isFetching} />
+          <RenderTable 
+            data={students} 
+            columns={renderStudentColumns(fetchStudents, removeStudent)} 
+            isFetching={isFetching}
+            fetchData={fetchStudents}
+            drawerTitle='Create a new student'
+            btnTitle='Add New Student' 
+             
+            />
         </div>
       </Content>
       <Footer style={{ textAlign: 'center' }}>By Dimitris</Footer>

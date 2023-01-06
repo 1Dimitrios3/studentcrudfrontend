@@ -1,38 +1,74 @@
-import React from 'react';
-import { Table, Empty, Spin } from 'antd';
+import React, { useState } from 'react';
+import { Table, Empty, Spin, Button, Badge, Tag } from 'antd';
 import { Column } from './types';
+import { PlusOutlined } from '@ant-design/icons';
+import DrawerForm from './DrawerForm';
 
 type TableProps<T> = {
   data: T[],
   columns: Column[],
-  title: string,
-  isFetching: boolean
+  btnTitle: string,
+  isFetching: boolean,
+  drawerTitle: string,
+  fetchData: () => void
 }
 
 function RenderTable<T extends { id: number }>({ 
   data, 
   columns, 
-  title, 
-  isFetching 
+  btnTitle, 
+  isFetching,
+  drawerTitle,
+  fetchData 
 }: TableProps<T>
 ) {
+  const [showDrawer, setShowDrawer] = useState(false);
+ 
+
     if (isFetching) {
         return <Spin />
     }
-    if (!isFetching && data.length <= 0) {
-        return <Empty />
-    }
 
-    return ( 
+    return (
+      <> 
+      <DrawerForm
+        title={drawerTitle} 
+        showDrawer={showDrawer}
+        setShowDrawer={setShowDrawer}
+        fetchData={fetchData}
+      />
+      {!isFetching && data.length <= 0 ? <Empty /> :
         <Table 
-        dataSource={data} 
-        columns={columns}  
-        title={() => `${title}`} 
+          dataSource={data} 
+          columns={columns}  
+          title={() => 
+            <>
+            <div style={{ marginBottom: '10px' }}>
+            <Tag>Number of {`${btnTitle.slice(btnTitle.lastIndexOf(' '))}s`}</Tag>
+            <Badge
+              style={{ backgroundColor: '#1677ff' }}
+              className="site-badge-count-109"
+              count={data.length}
+              showZero
+            />
+            </div>
+            <Button 
+              onClick={() => setShowDrawer(!showDrawer)}
+              type="primary" 
+              shape="round" 
+              icon={<PlusOutlined />} size="small"
+              >
+              {btnTitle}
+            </Button>
+            </>
+        } 
         bordered 
         pagination={{ pageSize: 50 }}
-        scroll={{ y: 240 }}
+        scroll={{ y: 500 }}
         rowKey={(element: T) => element.id}
         />
+      }
+        </>
     )
 }
 

@@ -1,16 +1,35 @@
 import fetch from 'unfetch';
-import { Response, CheckResponseFn, Error } from './types';
+import { Response, CheckResponseFn, Student } from './types';
 
 function checkStatus<T>(response: T): T {
     if ((response as Response).ok) {
         return response;
     }
     // convert non-2xx HTTP responses into errors:
-    const error: Error = new Error((response as Response).statusText);
+    const error: any = new Error((response as Response).statusText);
     error.response = response;
-    return <T>Promise.reject(error);
+    return Promise.reject(error) as T;
 }
 
-export const getAllStudents = () =>
+const getAllStudents = () =>
     fetch("api/v1/students")
-        .then(<CheckResponseFn>checkStatus);
+        .then(checkStatus as CheckResponseFn);
+
+
+
+const addStudent = (student: Student) => 
+    fetch("api/v1/students", {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(student)
+    }
+);
+
+const deleteStudent = (studentId: number) => 
+    fetch(`api/v1/students/delete/${studentId}`, {
+        method: 'DELETE'
+    }).then(checkStatus);
+
+export { getAllStudents, addStudent, deleteStudent }
