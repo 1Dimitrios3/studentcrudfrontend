@@ -13,6 +13,27 @@ type TableProps<T> = {
   fetchData: () => void
 }
 
+type ButtonProps = {
+  setShowDrawer: (status: boolean) => void,
+  showDrawer: boolean,
+  btnTitle: string
+}
+
+const RenderBtn: React.FC<ButtonProps> = ({
+  setShowDrawer, 
+  showDrawer, 
+  btnTitle
+}) => (
+    <Button 
+    onClick={() => setShowDrawer(!showDrawer)}
+    type="primary" 
+    shape="round" 
+    icon={<PlusOutlined />} size="small"
+    >
+    {btnTitle}
+  </Button>
+);
+
 function RenderTable<T extends { id: number }>({ 
   data, 
   columns, 
@@ -37,7 +58,15 @@ function RenderTable<T extends { id: number }>({
         setShowDrawer={setShowDrawer}
         fetchData={fetchData}
       />
-      {!isFetching && data.length <= 0 ? <Empty /> :
+      {!isFetching && data.length <= 0 ? 
+      <>
+      <RenderBtn 
+        setShowDrawer={setShowDrawer}
+        showDrawer={showDrawer}
+        btnTitle={btnTitle}
+      />
+      <Empty />
+      </> :
         <Table 
           dataSource={data} 
           columns={columns}  
@@ -52,14 +81,11 @@ function RenderTable<T extends { id: number }>({
               showZero
             />
             </div>
-            <Button 
-              onClick={() => setShowDrawer(!showDrawer)}
-              type="primary" 
-              shape="round" 
-              icon={<PlusOutlined />} size="small"
-              >
-              {btnTitle}
-            </Button>
+            <RenderBtn 
+              setShowDrawer={setShowDrawer}
+              showDrawer={showDrawer}
+              btnTitle={btnTitle}
+      />
             </>
         } 
         bordered 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Input, Select, Button, Spin } from 'antd';
 import { addStudent } from './service';
-import { Student } from './types';
+import { ErrorResponse, Student } from './types';
 import { LoadingOutlined } from '@ant-design/icons';
 import { 
     successNotification, 
@@ -25,18 +25,23 @@ function StudentForm({
 
     const onFinish = (values: Student) => {
         setSubmitting(true);
-        console.log('values', values);
         addStudent(values)
             .then(() => {
-                onClose();
-                successNotification(
-                    'Student successfully added', 
-                    `${values.name} was added to the list!`
-                    );
-                fetchStudents();
-            })
-            .catch((err) => {
-                console.log('err', err);
+                    onClose();
+                    successNotification(
+                        'Student successfully added', 
+                        `${values.name} was added to the list!`
+                        );
+                    fetchStudents();
+            }).catch((err: any) => {
+                err.response.json()
+                    .then((res: ErrorResponse) => {
+                        errorNotification(
+                            'There was an issue',
+                            `${res.message} [statusCode]: ${res.status} [${res.error}] `,
+                            'bottomLeft'
+                        )
+                    });
             })
             .finally(() => {
                 setSubmitting(false);
@@ -44,7 +49,7 @@ function StudentForm({
     };
 
     const onFinishFailed = (errorInfo: any) => {
-        alert(JSON.stringify(errorInfo, null, 2));
+        // alert(JSON.stringify(errorInfo, null, 2));
     };
 
     return (

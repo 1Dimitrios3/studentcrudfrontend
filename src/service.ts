@@ -1,5 +1,5 @@
 import fetch from 'unfetch';
-import { Response, CheckResponseFn, Student } from './types';
+import { Response, Student } from './types';
 
 function checkStatus<T>(response: T): T {
     if ((response as Response).ok) {
@@ -13,7 +13,7 @@ function checkStatus<T>(response: T): T {
 
 const getAllStudents = () =>
     fetch("api/v1/students")
-        .then(checkStatus as CheckResponseFn);
+        .then(checkStatus);
 
 
 
@@ -25,7 +25,7 @@ const addStudent = (student: Student) =>
         method: 'POST',
         body: JSON.stringify(student)
     }
-);
+).then(checkStatus);
 
 const deleteStudent = (studentId: number) => 
     fetch(`api/v1/students/delete/${studentId}`, {

@@ -8,11 +8,11 @@ import { TeamOutlined } from '@ant-design/icons';
 import RenderTable from './RenderTable';
 import { renderStudentColumns } from './TableColumns';
 import { deleteStudent, getAllStudents } from './service';
-import { Student, MenuItem, getItem } from './types';
+import { Student, MenuItem, getItem, ErrorResponse } from './types';
 import './App.css';
 import Sider from 'antd/es/layout/Sider';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
-import { successNotification } from './Notification';
+import { successNotification, errorNotification } from './Notification';
 
 const items: MenuItem[] = [
   getItem('Users', '1', <TeamOutlined />),
@@ -32,8 +32,18 @@ function App() {
       .then(res => res.json())
       .then(data => {
         setStudents(data)
-        setIsFetching(false);
-      });
+      })
+      .catch((err) => {
+        console.log(err.response);
+        err.response.json()
+          .then((res: ErrorResponse) => {
+          errorNotification(
+            'An unexpected error occured', 
+            `${res.message} [statusCode]: ${res.status} [${res.error}]`
+            )
+        })
+      })
+      .finally(() => setIsFetching(false));
   }
 
   const removeStudent = (studentId: number, callback: () => void) => {
@@ -41,7 +51,15 @@ function App() {
       .then(() => {
         successNotification("Student deleted", `Student with id: ${studentId} was successfully deleted`);
         callback();
-      });
+      }).catch((err: any) => {
+        err.response.json().then((res: ErrorResponse) => {
+          console.log('res inside delete', res);
+          errorNotification(
+            "There was an issue",
+            `${res.message} [${res.status}] [${res.error}]`
+        )
+        })
+      })
   }
 
       useEffect(() => {
