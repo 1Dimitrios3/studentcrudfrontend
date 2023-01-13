@@ -1,25 +1,28 @@
 import { Drawer, Button } from 'antd';
 import StudentForm from './StudentForm';
+import { Student } from './types';
 
-type DrawerTypes = {
+type DrawerTypes<T> = {
     title: string;
     showDrawer: boolean;
-    setShowDrawer: (el: boolean) => void
-    fetchData: () => void
+    setShowDrawer: (status: boolean) => void
+    fetchData: () => void,
+    selectedEntity?: T
 } 
 
-const DrawerForm = ({
+function DrawerForm<T>({
         showDrawer, 
         setShowDrawer, 
         title,
-        fetchData
-    }: DrawerTypes) => {
-    const onCLose = () => setShowDrawer(false);
+        fetchData,
+        selectedEntity
+    }: DrawerTypes<T>) {
+    const onClose = () => setShowDrawer(false);
 
     return <Drawer
         title={title}
         width={720}
-        onClose={onCLose}
+        onClose={onClose}
         open={showDrawer}
         bodyStyle={{paddingBottom: 80}}
         footer={
@@ -28,15 +31,18 @@ const DrawerForm = ({
                     textAlign: 'right',
                 }}
             >
-                <Button onClick={onCLose} style={{marginRight: 8}}>
+                <Button 
+                    onClick={onClose} 
+                    style={{marginRight: 8}}>
                     Cancel
                 </Button>
             </div>
         }
     >
        <StudentForm
-         onClose={onCLose}
+         onClose={onClose}
          fetchStudents={fetchData}
+         selectedStudent={selectedEntity as Student}
        />
     </Drawer>
 }

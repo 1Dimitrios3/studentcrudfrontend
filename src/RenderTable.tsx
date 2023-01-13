@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Table, Empty, Spin, Button, Badge, Tag } from 'antd';
 import { Column } from './types';
 import { PlusOutlined } from '@ant-design/icons';
@@ -10,7 +10,10 @@ type TableProps<T> = {
   btnTitle: string,
   isFetching: boolean,
   drawerTitle: string,
-  fetchData: () => void
+  fetchData: () => void,
+  setShowDrawer: (status: boolean) => void,
+  selectedEntity?: T,
+  showDrawer: boolean
 }
 
 type ButtonProps = {
@@ -22,7 +25,7 @@ type ButtonProps = {
 const RenderBtn: React.FC<ButtonProps> = ({
   setShowDrawer, 
   showDrawer, 
-  btnTitle
+  btnTitle,
 }) => (
     <Button 
     onClick={() => setShowDrawer(!showDrawer)}
@@ -40,12 +43,12 @@ function RenderTable<T extends { id: number }>({
   btnTitle, 
   isFetching,
   drawerTitle,
-  fetchData 
+  setShowDrawer,
+  showDrawer,
+  selectedEntity,
+  fetchData
 }: TableProps<T>
-) {
-  const [showDrawer, setShowDrawer] = useState(false);
- 
-
+) { 
     if (isFetching) {
         return <Spin />
     }
@@ -57,15 +60,16 @@ function RenderTable<T extends { id: number }>({
         showDrawer={showDrawer}
         setShowDrawer={setShowDrawer}
         fetchData={fetchData}
+        selectedEntity={selectedEntity}
       />
       {!isFetching && data.length <= 0 ? 
       <>
-      <RenderBtn 
-        setShowDrawer={setShowDrawer}
-        showDrawer={showDrawer}
-        btnTitle={btnTitle}
-      />
-      <Empty />
+        <RenderBtn 
+          setShowDrawer={setShowDrawer}
+          showDrawer={showDrawer}
+          btnTitle={btnTitle}
+        />
+        <Empty />
       </> :
         <Table 
           dataSource={data} 

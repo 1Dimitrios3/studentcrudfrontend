@@ -6,13 +6,13 @@ import {
 } from 'antd';
 import { TeamOutlined } from '@ant-design/icons';
 import RenderTable from './RenderTable';
-import { renderStudentColumns } from './TableColumns';
-import { deleteStudent, getAllStudents } from './service';
+import { renderStudentColumns } from './StudentColumns';
+import { getAllStudents } from './StudentService';
 import { Student, MenuItem, getItem, ErrorResponse } from './types';
 import './App.css';
 import Sider from 'antd/es/layout/Sider';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
-import { successNotification, errorNotification } from './Notification';
+import { errorNotification } from './Notification';
 
 const items: MenuItem[] = [
   getItem('Users', '1', <TeamOutlined />),
@@ -22,9 +22,22 @@ const items: MenuItem[] = [
 const backGroundColor = 'rgba(255, 255, 255, 0.2)';
 
 function App() {
-  const [collapsed, setCollapsed] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
+  const [collapsed, setCollapsed] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  useEffect(() => {
+    if (!showDrawer) {
+      setSelectedStudent(undefined);
+    }
+  }, [showDrawer, setSelectedStudent]);
+
 
   const fetchStudents = () => {
     setIsFetching(true);
@@ -46,25 +59,11 @@ function App() {
       .finally(() => setIsFetching(false));
   }
 
-  const removeStudent = (studentId: number, callback: () => void) => {
-    deleteStudent(studentId)
-      .then(() => {
-        successNotification("Student deleted", `Student with id: ${studentId} was successfully deleted`);
-        callback();
-      }).catch((err: any) => {
-        err.response.json().then((res: ErrorResponse) => {
-          console.log('res inside delete', res);
-          errorNotification(
-            "There was an issue",
-            `${res.message} [${res.status}] [${res.error}]`
-        )
-        })
-      })
-  }
-
-      useEffect(() => {
-        fetchStudents();
-      }, []);
+      const studentColumns = renderStudentColumns(
+        fetchStudents, 
+        setShowDrawer, 
+        setSelectedStudent
+        );
 
   return(
     <Layout style={{ minHeight: '100vh' }}>
@@ -82,12 +81,14 @@ function App() {
         <div style={{ padding: 24, minHeight: 360, background: backGroundColor }}>
           <RenderTable 
             data={students} 
-            columns={renderStudentColumns(fetchStudents, removeStudent)} 
+            columns={studentColumns} 
             isFetching={isFetching}
             fetchData={fetchStudents}
-            drawerTitle='Create a new student'
-            btnTitle='Add New Student' 
-             
+            drawerTitle={`${selectedStudent === undefined ? 'Create' : 'Edit'} a student`}
+            btnTitle='Add New Student'
+            setShowDrawer={setShowDrawer} 
+            showDrawer={showDrawer}
+            selectedEntity={selectedStudent}
             />
         </div>
       </Content>
@@ -98,3 +99,4 @@ function App() {
 }
 
 export default App;
+

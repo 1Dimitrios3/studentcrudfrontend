@@ -36,10 +36,6 @@ export function getItem(
     } as MenuItem;
   }
 
-export type RemoveEntityFn = (id: number, callback: () => void) => void;
-
-export type FetchDataFn = () => void;
-
 export type ErrorResponse = {
   error: string,
   message: string,
