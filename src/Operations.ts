@@ -44,7 +44,6 @@ export const editStudent = (
       callBack();
     }).catch((err: any) => {
       err.response.json().then((res: ErrorResponse) => {
-        console.log('res inside delete', res);
         errorNotification(
           "There was an issue",
           `${res.message} [${res.status}] [${res.error}]`
@@ -63,7 +62,6 @@ export const editStudent = (
         callback();
       }).catch((err: any) => {
         err.response.json().then((res: ErrorResponse) => {
-          console.log('res inside delete', res);
           errorNotification(
             "There was an issue",
             `${res.message} [${res.status}] [${res.error}]`
